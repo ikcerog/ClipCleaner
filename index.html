@@ -3,60 +3,202 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Paste Cleaner — Clean & Highlight (Frontend Only)</title>
-  <meta name="description" content="Paste messy copy from a web page; prune promos/boilerplate, remove captions/credits, normalize formatting, and surface quick highlights."/>
+  <title>Paste Cleaner — Clean & Highlight</title>
+  <meta name="description" content="Paste messy copy from the frontend; prune ads/boilerplate, strip captions/credits (including duplicates) and sidebar CTAs, normalize spacing, keep bullets, and auto-highlight key bits."/>
   <style>
-    :root{ --bg:#0f0f12; --card:#17171b; --muted:#9aa0a6; --text:#f2f4f8; --brand:#7c5cff; --chip:#121218; --border:rgba(255,255,255,.1); }
-    [data-theme="light"]{ --bg:#f6f7fb; --card:#ffffff; --muted:#5f6b7b; --text:#0e1116; --brand:#6b4dff; --chip:#f1f2f6; --border:rgba(16,24,40,.12); }
+    :root{
+      --bg:#0f0f12;
+      --card:#17171b;
+      --muted:#9aa0a6;
+      --text:#f2f4f8;
+      --brand:#7c5cff;
+      --chip:#121218;
+      --border:rgba(255,255,255,.1);
+    }
+    [data-theme="light"]{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --muted:#5f6b7b;
+      --text:#0e1116;
+      --brand:#6b4dff;
+      --chip:#f1f2f6;
+      --border:rgba(16,24,40,.12);
+    }
 
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    }
 
-    /* Header */
-    header{position:sticky; top:0; z-index:5; backdrop-filter:saturate(180%) blur(6px); background:linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0))}
-    .head-inner{max-width:980px;margin:0 auto;padding:16px;display:flex;align-items:center;gap:12px}
-    .title{font-size:20px; font-weight:800; letter-spacing:.2px}
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter:saturate(180%) blur(6px);
+      background:linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,0));
+    }
+    .head-inner{
+      max-width:980px;
+      margin:0 auto;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .title{font-size:22px; font-weight:800; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:14px}
+    .head-text{display:flex; flex-direction:column; gap:2px}
     .flex{flex:1}
-    .toggle{margin-left:auto; display:inline-flex; gap:8px; align-items:center; border:1px solid var(--border); background:var(--card); color:var(--text); padding:8px 12px; border-radius:12px; cursor:pointer; font-weight:700}
+    .toggle{
+      margin-left:auto;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+    }
 
-    /* Layout */
-    .app{max-width:980px;margin:16px auto 80px;padding:0 16px;display:grid;gap:16px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; box-shadow:0 8px 40px rgba(0,0,0,.20)}
+    .app{
+      max-width:980px;
+      margin:16px auto 80px;
+      padding:0 16px;
+      display:grid;
+      gap:16px;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 8px 40px rgba(0,0,0,.35);
+    }
     .pad{padding:16px}
 
-    /* Inputs */
-    textarea{width:100%; min-height:180px; background:var(--card); color:var(--text); border:1px dashed var(--border); border-radius:12px; padding:12px; font:14px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas}
+    textarea{
+      width:100%;
+      min-height:180px;
+      background:var(--card);
+      color:var(--text);
+      border:1px dashed var(--border);
+      border-radius:12px;
+      padding:12px;
+      font:14px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
     .hint{color:var(--muted); font-size:13px}
-    .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px}
-    button{appearance:none; border:1px solid var(--border); background:var(--brand); color:white; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer}
-    button.secondary{background:transparent; color:var(--text)}
 
-    /* Highlights section */
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--brand);
+      color:white;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+      font-size:14px;
+    }
+    button.secondary{
+      background:transparent;
+      color:var(--text);
+    }
+    button:disabled{opacity:.6; cursor:not-allowed}
+
     .section-title{font-size:16px; font-weight:800; margin:0 0 8px}
     .list{padding-left:18px; margin:0}
-    .key-entities{display:flex;flex-wrap:wrap;gap:8px; margin-top:8px}
-    .chip{border:1px solid var(--border); padding:6px 10px; border-radius:999px; background:var(--chip)}
+    .list li{margin-bottom:4px;}
 
-    /* Cleaned article (copy-friendly) */
-    .article{line-height:1.65; font-family: "WNTL", inherit}
-    .article h1{font-size:22px; margin:8px 0 8px; font-family: "WNTL", inherit}
-    .article p{margin:12px 0; font-family: "WNTL", inherit}
-    .hl{background:linear-gradient(0deg, rgba(255,255,0,0.8), rgba(255,255,0,0.8)); border-radius:6px; padding:0 2px}
+    .key-entities{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .chip{
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--chip);
+      font-size:13px;
+    }
 
-    /* Metrics */
-    .metrics{display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:14px; margin-top:8px}
-    .pill{background:transparent; color:var(--muted); border:1px solid var(--border); padding:6px 10px; border-radius:999px}
+    .metrics{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:14px;
+      margin-top:8px;
+    }
+    .pill{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    .article{
+      line-height:1.8; /* ≈10% extra vertical space */
+      font-family:"WNTL", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    }
+    .article h1, .article h2, .article h3{line-height:1.2}
+    .article h1{font-size:24px; margin:4px 0 10px; font-family:"WNTL", inherit}
+    .article h2{font-size:20px; margin:14px 0 8px; font-family:"WNTL", inherit}
+    .article h3{font-size:18px; margin:12px 0 6px; font-family:"WNTL", inherit}
+    .article p{
+      margin:14px 0;
+      font-family:"WNTL", inherit;
+    }
+    .article img, .article figure, .article iframe{display:none !important}
+    .article a{
+      color:#c9c200;
+      text-decoration:none;
+      border-bottom:1px dotted rgba(255,255,0,.7);
+    }
+    .article .byline{
+      font-size:14px;
+      color:var(--muted);
+      margin:4px 0 10px;
+      font-style:italic;
+    }
+    .article ul{
+      margin:10px 0 14px 1.25em;
+      padding-left:1.25em;
+    }
+    .article li{
+      margin:3px 0;
+      font-family:"WNTL", inherit;
+    }
+
+    /* Yellow highlight, per request: rgba(255,255,0,0.8) */
+    .hl{
+      background:rgba(255,255,0,0.8);
+      border-radius:4px;
+      padding:0 2px;
+    }
 
     .hidden{display:none !important}
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/compromise@14.14.1/builds/compromise.min.js"></script>
 </head>
 <body>
   <header>
     <div class="head-inner">
-      <div class="title">Paste Cleaner — Clean & Highlight</div>
+      <div class="head-text">
+        <div class="title">Paste Cleaner — Clean & Highlight</div>
+        <div class="sub">Paste messy copy from a media site; we’ll prune junk, drop captions & sidebar CTAs, normalize bylines, keep bullets, and surface highlights.</div>
+      </div>
       <div class="flex"></div>
       <button id="modeToggle" class="toggle" aria-label="Toggle color mode">🌙 Dark</button>
     </div>
@@ -64,8 +206,8 @@
 
   <main class="app">
     <section class="card pad">
-      <label class="hint" for="text">Paste messy copy from the frontend here (Ctrl/Cmd+V):</label>
-      <textarea id="text" placeholder="Paste raw copy here…"></textarea>
+      <label class="hint" for="text">Paste messy frontend copy here (Ctrl/Cmd+V):</label>
+      <textarea id="text" placeholder="Paste raw article copy here…"></textarea>
       <div class="controls">
         <button id="btnProcess">Clean & Highlight</button>
         <button id="btnDemo" class="secondary">Load Example</button>
@@ -73,7 +215,6 @@
       </div>
     </section>
 
-    <!-- Highlights FIRST -->
     <section class="card pad">
       <div class="section-title">Highlights</div>
       <ul id="highlights" class="list"></ul>
@@ -81,7 +222,6 @@
       <div class="metrics" id="metrics"></div>
     </section>
 
-    <!-- Cleaned output full width below highlights -->
     <section class="card pad">
       <div class="section-title">Cleaned Output</div>
       <article id="article" class="article"></article>
@@ -89,244 +229,471 @@
   </main>
 
   <script>
-    const $ = (s, r=document) => r.querySelector(s);
+    const $ = (s,r=document)=>r.querySelector(s);
+    const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
 
-    // Light/Dark toggle
-    const toggleBtn = $('#modeToggle');
+    /* --- Light/Dark toggle --- */
     const root = document.documentElement;
-    function syncToggleLabel(){ toggleBtn.textContent = (root.getAttribute('data-theme')==='dark') ? '🌙 Dark' : '☀️ Light'; }
+    const toggleBtn = $('#modeToggle');
+    function syncToggleLabel(){
+      toggleBtn.textContent = root.getAttribute('data-theme') === 'light' ? '☀️ Light' : '🌙 Dark';
+    }
     toggleBtn.addEventListener('click', ()=>{
-      root.setAttribute('data-theme', root.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
       syncToggleLabel();
     });
     syncToggleLabel();
 
-    // Demo sample (adjust as needed)
-    const DEMO = `Rocket Companies (RKT) Gets a Buy from Bank of America Securities
-Tipranks - Tipranks - Thu Nov 20, 5:52AM CST
-Bank of America Securities analyst Mihir Bhatia maintained a Buy rating on Rocket Companies today and set a price target of $22.00.
+    /* --- Demo text --- */
+    const DEMO = `Real Estate
+
+GM Plans to Overhaul Detroit's Iconic Towers. A Battle Is Brewing With Taxpayers.
+
+The $1.6 billion proposal calls for $350 million in public subsidies
+
+By
+Peter Grant and Someone Else
+
+Dec. 17, 2024 5:30 am ET
+
+General Motors and billionaire developer Daniel Gilbert are planning to overhaul downtown Detroit's iconic office complex Renaissance Center.
+
+Newsletter Sign-up
+
+What's News
+
+Catch up on the headlines, understand the news and make better decisions, free in your inbox daily. Enjoy a free article in every edition.
+
+Preview
+
+Key points:
+• GM and Daniel Gilbert plan a $1.6 billion overhaul of Renaissance Center.
+• The proposal includes $350 million in public subsidies.
+• Supporters say the project would modernize an aging complex.
+
+More details:
+1. City officials are weighing the tax impact.
+2. Community groups want stronger guarantees on jobs.
+3. The plan includes mixed-use retail and public spaces.
+
+The 5.5 million-square-foot complex was named Renaissance Center to symbolize the rebirth of Detroit.
+The 5.5 million-square-foot complex was named Renaissance Center to symbolize the rebirth of Detroit. Ryan Garza/Zuma Press.
 
 A conceptual rendering of the proposed Renaissance Center redevelopment in Detroit.
 A conceptual rendering of the proposed Renaissance Center redevelopment in Detroit. Bedrock/GENSLER DETROIT
 
-TipRanks Black Friday Sale
-Claim 60% off TipRanks Premium for the data-backed insights and research tools you need to invest with confidence.
-Subscribe to TipRanks' Smart Investor Picks and see our data in action through our high-performing model portfolio - now also 60% off
-Bhatia covers the Financial sector, focusing on stocks such as American Express, Synchrony Financial, and Rocket Companies. According to TipRanks, Bhatia has an average return of 7.3% and a 62.06% success rate on recommended stocks.
+GM is seeking public subsidies to help fund the overhaul, which has drawn both support and criticism from local stakeholders.
 
-In addition to Bank of America Securities, Rocket Companies also received a Buy from Oppenheimer’s Chad Larkin in a report issued on November 13. However, on November 3, TR | OpenAI – 4o reiterated a Hold rating on Rocket Companies (NYSE: RKT).
+Subscribe for more market news >>
+Disclaimer & DisclosureReport an Issue`;
 
-See Insiders’ Hot Stocks on TipRanks >>
-Based on Rocket Companies’ latest earnings release for the quarter ending September 30, the company reported a quarterly revenue of $1.79 billion and a GAAP net loss of $123.85 million. In comparison, last year the company earned a revenue of $748.77 million and had a GAAP net loss of $22.01 million
+    $('#btnDemo').addEventListener('click', ()=>{
+      $('#text').value = DEMO;
+      runTextClean();
+    });
 
-Read More on RKT:
-
-Disclaimer & DisclosureReport an Issue
-
-ValueAct takes new stake in Toast, exits Expedia, boosts MongoDB stake
-Nike upgraded, Dollar Tree downgraded: Wall Street’s top analyst calls
-Oppenheimer bullish on Rocket Companies, initiates with an Outperform
-Rocket Companies initiated with an Outperform at Oppenheimer
-Mixed options sentiment in Rocket Companies with shares up 4.54%
-This article contains syndicated content. We have not reviewed, approved, or endorsed the content, and may receive compensation for placement of the content on this site. For more information please view the Barchart Disclosure Policy here.`;
-
-    $('#btnDemo').addEventListener('click', ()=>{ $('#text').value = DEMO; runTextClean(); });
     $('#btnProcess').addEventListener('click', runTextClean);
 
     function runTextClean(){
       const raw = $('#text').value || '';
-      const { text: cleaned, removed } = prunePastedText(raw);
+      const result = prunePastedText(raw);
+      const cleaned = result.text;
+      const removedLines = result.removed;
 
       const artEl = $('#article');
-      artEl.innerHTML = `<h1>Cleaned Paste</h1><div class="hint">Removed lines: ${removed}</div>` +
-        cleaned.split(/\n{2,}/).map(p=> `<p>${escapeHtml(p)}</p>`).join('');
+      artEl.innerHTML = '';
 
-      const plain = cleaned.replace(/\s+/g,' ').trim();
-      renderHighlights(plain, artEl);
+      if (!cleaned){
+        artEl.innerHTML = '<p class="hint">Nothing to show yet. Paste some copy and hit “Clean & Highlight”.</p>';
+        renderHighlights('', artEl, removedLines);
+        return;
+      }
+
+      // Split into logical blocks (paragraph-ish units)
+      let blocks = cleaned.split(/\n{2,}/).map(function(b){ return b.trim(); }).filter(Boolean);
+
+      // ---- Byline normalization ----
+      let byline = null;
+      let consumed = new Array(blocks.length).fill(false);
+
+      function normalizeByline(name){
+        name = name.replace(/^By\s+/i,'').trim();
+        name = name.replace(/\s*\.+$/,''); // strip trailing dots
+        return 'By ' + name + '.';
+      }
+
+      for (let i=0; i<Math.min(blocks.length,6); i++){
+        const b = blocks[i];
+        if (!b) continue;
+
+        // Case: "By Name Here..."
+        if (/^By\s+.+/i.test(b)){
+          byline = normalizeByline(b);
+          consumed[i] = true;
+          break;
+        }
+
+        // Case: "By" then next line has names
+        if (/^By\s*$/i.test(b) && i+1 < blocks.length){
+          const b2 = blocks[i+1].trim();
+          if (b2 && b2.length < 80 && /^[A-Za-z0-9 .,&'’-]+$/.test(b2)){
+            byline = normalizeByline(b2);
+            consumed[i] = true;
+            consumed[i+1] = true;
+            break;
+          }
+        }
+      }
+
+      // Remove consumed (byline) blocks from the main flow
+      const newBlocks = [];
+      for (let i=0; i<blocks.length; i++){
+        if (!consumed[i]) newBlocks.push(blocks[i]);
+      }
+      if (!newBlocks.length){
+        artEl.innerHTML = '<p class="hint">Content removed as boilerplate.</p>';
+        renderHighlights('', artEl, removedLines);
+        return;
+      }
+
+      // ---- Title detection (avoid promoting section labels like "REAL ESTATE") ----
+      function isSectionLabel(t){
+        const txt = t.trim();
+        if (!txt) return false;
+        if (/[.!?]$/.test(txt)) return false;
+        const words = txt.split(/\s+/);
+        // 1–3 short words, no punctuation = likely section label
+        if (words.length <= 3 && txt.length <= 24) return true;
+        return false;
+      }
+
+      let titleIndex = -1;
+      for (let i=0; i<Math.min(newBlocks.length,8); i++){
+        const t = newBlocks[i];
+        if (!t) continue;
+        if (isSectionLabel(t)) continue;
+        if (/^By\b/i.test(t)) continue;
+        const wc = t.split(/\s+/).length;
+        const len = t.length;
+        if (len >= 25 || wc >= 5){
+          titleIndex = i;
+          break;
+        }
+      }
+      if (titleIndex === -1) titleIndex = 0;
+
+      // Pre-title blocks (e.g., "REAL ESTATE") remain as plain text, not big headline
+      const preBlocks = newBlocks.slice(0, titleIndex);
+      renderBlocksAsBody(preBlocks, artEl);
+
+      // Title as H1
+      const titleText = newBlocks[titleIndex];
+      if (titleText){
+        const h = document.createElement('h1');
+        h.textContent = titleText;
+        artEl.appendChild(h);
+      }
+
+      // Byline (single-line)
+      if (byline){
+        const bp = document.createElement('p');
+        bp.className = 'byline';
+        bp.textContent = byline;
+        artEl.appendChild(bp);
+      }
+
+      // Remaining blocks after title
+      const restBlocks = newBlocks.slice(titleIndex + 1);
+      renderBlocksAsBody(restBlocks, artEl);
+
+      const plain = (artEl.textContent||'').replace(/\s+/g,' ').trim();
+      renderHighlights(plain, artEl, removedLines);
     }
 
-    function renderHighlights(plain, artEl){
-      // Bullets
+    // Render paragraph blocks, but keep bullets as real lists
+    function renderBlocksAsBody(blocks, container){
+      let i = 0;
+      function isBullet(t){
+        const txt = t.trim();
+        if (!txt) return false;
+        if (/^(\u2022|•|\*|-|\u2013|\u2014)\s+.+/.test(txt)) return true; // • item, - item, * item
+        if (/^\d+\.\s+.+/.test(txt)) return true; // 1. item
+        if (/^[A-Za-z]\)\s+.+/.test(txt)) return true; // a) item
+        return false;
+      }
+      function stripBulletPrefix(t){
+        return t.trim()
+          .replace(/^(\u2022|•|\*|-|\u2013|\u2014)\s+/, '')
+          .replace(/^\d+\.\s+/, '')
+          .replace(/^[A-Za-z]\)\s+/, '')
+          .trim();
+      }
+
+      while (i < blocks.length){
+        const blk = blocks[i];
+        if (!blk){ i++; continue; }
+
+        if (isBullet(blk)){
+          const ul = document.createElement('ul');
+          while (i < blocks.length && isBullet(blocks[i])){
+            const li = document.createElement('li');
+            li.textContent = stripBulletPrefix(blocks[i]);
+            ul.appendChild(li);
+            i++;
+          }
+          container.appendChild(ul);
+        } else {
+          const p = document.createElement('p');
+          p.textContent = blk;
+          container.appendChild(p);
+          i++;
+        }
+      }
+    }
+
+    function renderHighlights(plain, artEl, removedLines){
       const bullets = summarizeSentences(plain, 5);
       const hl = $('#highlights'); hl.innerHTML='';
-      bullets.forEach(b=>{ const li=document.createElement('li'); li.textContent=b; hl.appendChild(li); });
+      bullets.forEach(function(b){
+        const li = document.createElement('li');
+        li.textContent = b;
+        hl.appendChild(li);
+      });
 
-      // Entities
-      const nlp = window.nlp || (s=>({ people:()=>({out:()=>[]}), organizations:()=>({out:()=>[]}), places:()=>({out:()=>[]}) }));
+      const nlp = window.nlp || (function(){ return function(){ return { people:()=>({out:()=>[]}), organizations:()=>({out:()=>[]}), places:()=>({out:()=>[]}) }; };})();
       const docN = nlp(plain);
-      const ents = dedupe([...(docN.people().out('array')||[]), ...(docN.organizations().out('array')||[]), ...(docN.places().out('array')||[])]).slice(0,12);
+      const ents = dedupe([
+        ...(docN.people().out('array')||[]),
+        ...(docN.organizations().out('array')||[]),
+        ...(docN.places().out('array')||[])
+      ]).slice(0,12);
+
       const wrap = $('#entitiesWrap'); wrap.innerHTML='';
       if (ents.length){
         wrap.classList.remove('hidden');
-        ents.forEach(e=>{ const chip=document.createElement('span'); chip.className='chip'; chip.textContent=e; wrap.appendChild(chip); });
-      } else wrap.classList.add('hidden');
+        ents.forEach(function(e){
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = e;
+          wrap.appendChild(chip);
+        });
+      } else {
+        wrap.classList.add('hidden');
+      }
 
-      // Inline emphasize a few entities
       autoInlineHighlights(artEl, ents.slice(0,6));
 
-      // Metrics (adds caption stats + graphic flag)
       const wc = (plain.match(/\b\w+\b/g)||[]).length;
-      const sc = (plain.split(/[.!?]\s/).length)||0;
       const captionCount = prunePastedText._lastCaptionCount || 0;
       const foundGraphics = !!prunePastedText._foundGraphics;
+
       $('#metrics').innerHTML =
-        `<span class="pill">Words: ${wc.toLocaleString()}</span>`+
-        ` <span class="pill">Sentences: ${sc}</span>`+
-        ` <span class="pill">Entities: ${ents.length}</span>`+
-        ` <span class="pill">Captions removed: ${captionCount}</span>`+
-        (foundGraphics ? ` <span class="pill">Graphics detected</span>` : '');
+        '<span class="pill">Words: ' + wc.toLocaleString() + '</span>' +
+        ' <span class="pill">Sentences: ' + ((plain.split(/[.!?]\s/).length)||0) + '</span>' +
+        ' <span class="pill">Entities: ' + ents.length + '</span>' +
+        ' <span class="pill">Lines removed: ' + removedLines + '</span>' +
+        ' <span class="pill">Captions removed: ' + captionCount + '</span>' +
+        (foundGraphics ? ' <span class="pill">Graphics detected</span>' : '');
     }
 
-    // --- Helpers ---
+    /* ---------- Caption/CTA cleaner ---------- */
     function prunePastedText(input){
       if (!input) return { text:'', removed:0 };
 
-      // Normalize quotes/spacing early
-      let s = input
+      var s = input
         .replace(/\r/g,'')
-        .replace(/[‘’]/g, "'")
-        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g,"'")
+        .replace(/[“”]/g,'"')
         .replace(/\u00A0/g,' ')
         .replace(/\t/g,' ');
 
-      const rawLines = s.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+      var rawLines = s.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
+      var n = rawLines.length;
+      if (!n) return { text:'', removed:0 };
 
-      // Heuristics
-      const creditAgencies = /(Getty Images|Reuters|AP|Associated Press|Bloomberg|AFP|Agence France\-Presse|USA TODAY NETWORK|Shutterstock|iStock|WireImage|Press|EPA\b)/i;
-      const captionKeywords = /(\bphoto\b|\bimage\b|\bcaption\b|\bcredit\b|pictured|conceptual rendering|artist'?s rendering|file photo|rendering)/i;
+      var drop = new Array(n);
+      var normKey = new Array(n);
+      var captionish = new Array(n);
 
-      const dropRx = [
+      var agencyRx = /(Getty Images|Reuters|AP\b|Associated Press|Bloomberg|AFP|Agence France\-Presse|USA TODAY NETWORK|Shutterstock|iStock|WireImage|Press|EPA\b|Zuma Press|GENSLER DETROIT)/i;
+      var captionWordRx = /(\bphoto\b|\bimage\b|\bcaption\b|\bcredit\b|pictured|conceptual rendering|artist'?s rendering|file photo|rendering)/i;
+
+      // Generic junk + newsletter/sidebar CTAs
+      var dropRx = [
         /^(advertising|advertisement|ad|sponsored)\b/i,
         /black\s*friday|cyber\s*monday|sale|discount|sign up|subscribe|try premium/i,
         /read\s*more\b|see\s+.*>>\s*$/i,
         /disclaimer|disclosure|report an issue/i,
         /cookies|privacy policy|terms of service/i,
         /this article contains syndicated content/i,
-        /barchart disclosure policy/i,
-        /^tipranks\s*-\s*tipranks/i,
-        /^related articles?:?/i,
-        /^more (on|from)\b/i,
-        /^(valueact|nike|dollar tree|mixed options sentiment)/i,
 
-        // Photo captions & credits (standalone lines)
-        /^photo(s)?\s*:?.*$/i,
-        /^image(s)?\s*:?.*$/i,
-        /^caption\s*:?.*$/i,
-        /^credit(s)?\s*:?.*$/i,
-        /\b(Photo|Image) by\b/i,
-        /—\s*[^\n]*\b(Getty Images|Reuters|AP|Associated Press|Bloomberg|AFP|USA TODAY NETWORK)\b/i,
-        /\b(Getty Images|Reuters|AP Photo|Associated Press|Bloomberg|AFP|USA TODAY NETWORK)\b/i
+        // Sidebar / newsletter CTAs
+        /newsletter\s*sign[- ]?up/i,
+        /\bnewsletter\b/i,
+        /\bwhat'?s news\b/i,
+        /catch up on the headlines/i,
+        /free in your inbox daily/i,
+        /in your inbox daily/i,
+        /free article in every edition/i,
+        /enjoy a free article/i,
+        /sign up for .*newsletter/i,
+        /\byour inbox\b/i,
+        /^preview$/i
       ];
 
-      // Normalize a line for duplicate caption detection
-      function norm(line){
-        return line
+      function stripInlineCredits(t){
+        return t
+          .replace(/\s*\((?:photo|image|getty|reuters|ap|associated press|afp|bloomberg|usa today network|zuma press)[^)]*\)\s*/ig,' ')
+          .replace(/\s*\[(?:photo|image)[^\]]*\]\s*/ig,' ')
+          .replace(/[\s\-–—]*[A-Za-z'\.\s]+\/(?:[A-Z][A-Za-z&\s]+|AP|AFP|EPA|Reuters|Bloomberg|Getty Images|Zuma Press|GENSLER DETROIT)\.?$/i,'')
+          .replace(/\s{2,}/g,' ')
+          .trim();
+      }
+      function keyOf(t){
+        return stripInlineCredits(t)
           .toLowerCase()
-          .replace(/\.(?:\s*[A-Z][A-Z\/-]{2,}\b.*)?$/, '.')   // trim trailing AGENCY after a period
-          .replace(/[-–—]\s*[A-Z][A-Z\/-]{2,}\b.*/, '')      // trim dash + ALL-CAPS credit tails
+          .replace(/\.(?:\s*[A-Z][A-Z\/-]{2,}\b.*)?$/, '.')
+          .replace(/[-–—]\s*[A-Z][A-Z\/-]{2,}\b.*/, '')
           .replace(/\s+/g,' ')
           .trim();
       }
 
-      const keepHint = /(maintained|initiated|reiterated|upgraded|downgraded|price target|rating|quarter|revenue|eps|net (income|loss)|guidance|analyst|report|earnings|percent|\$\d|\d+\.\d+%|NYSE|Nasdaq|CST|EST|PT\b)/i;
+      var i;
 
-      const kept = [];
-      let removed = 0, captionsRemoved = 0;
-      const seenCaptionLike = new Map(); // key -> index in kept
+      // Pass 1: classify
+      for (i=0;i<n;i++){
+        var line = rawLines[i];
 
-      for (let line of rawLines){
-        // Hard drops
-        if (dropRx.some(rx=>rx.test(line))){
+        if (dropRx.some(function(rx){ return rx.test(line); })){
+          drop[i] = true;
+          continue;
+        }
+
+        var len = line.length;
+        var shortish = len <= 220;
+
+        var isCaptionish =
+          shortish &&
+          (captionWordRx.test(line) ||
+           agencyRx.test(line) ||
+           /^(a|an|the)\s+(conceptual|artist'?s)\b/i.test(line));
+
+        captionish[i] = isCaptionish;
+
+        if (shortish && len >= 15){
+          normKey[i] = keyOf(line);
+        } else {
+          normKey[i] = null;
+        }
+      }
+
+      // Pass 2: duplicate short lines
+      var map = Object.create(null);
+      for (i=0;i<n;i++){
+        if (drop[i] || !normKey[i]) continue;
+        var k = normKey[i];
+        if (!k) continue;
+        if (!map[k]) map[k] = [];
+        map[k].push(i);
+      }
+
+      var removed = 0;
+      var captionsRemoved = 0;
+      var graphicsFlag = false;
+
+      Object.keys(map).forEach(function(k){
+        var idxs = map[k];
+        if (idxs.length >= 2){
+          idxs.forEach(function(idx){
+            if (!drop[idx]){
+              drop[idx] = true;
+              removed++;
+              captionsRemoved++;
+            }
+          });
+        }
+      });
+
+      // Pass 3: single caption-ish lines
+      for (i=0;i<n;i++){
+        if (drop[i]) continue;
+        if (captionish[i]){
+          drop[i] = true;
           removed++;
-          if (captionKeywords.test(line) || creditAgencies.test(line)) captionsRemoved++;
-          continue;
+          captionsRemoved++;
         }
+      }
 
-        // Strip inline parenthetical/bracketed caption/credit bits
-        const before = line;
-        line = line.replace(/\s*\((?:photo|image|getty|reuters|ap|associated press|afp|bloomberg|usa today network)[^)]*\)\s*/ig,' ');
-        line = line.replace(/\s*\[(?:photo|image)[^\]]*\]\s*/ig,' ');
-        if (line !== before) captionsRemoved++;
+      graphicsFlag = captionsRemoved > 0;
 
-        // Collapse duplicate ribbons like "Site - Site - Thu Nov 20…"
+      // Pass 4: build kept lines
+      var kept = [];
+      for (i=0;i<n;i++){
+        if (drop[i]) continue;
+        var line = rawLines[i];
+
+        line = stripInlineCredits(line);
         line = line.replace(/\b([A-Z][A-Za-z]+)\s*-\s*\1\b/, '$1');
-        // Normalize AM/PM spacing
-        line = line.replace(/(\d)(am|pm)/ig, (m,d,ap)=> d + ' ' + ap.toUpperCase());
-        // Ensure single spaces
+        line = line.replace(/(\d)(am|pm)/ig, function(m,d,ap){ return d + ' ' + ap.toUpperCase(); });
         line = line.replace(/\s{2,}/g,' ').trim();
-        if (!line) { removed++; continue; }
-
-        // Caption duplication heuristic:
-        // short + captionish ⇒ remember; if it appears again later, remove BOTH.
-        const isCaptionish = captionKeywords.test(line) || creditAgencies.test(line) || /^(a|an|the)\s+(conceptual|artist'?s)\b/i.test(line);
-        const shortish = line.length <= 160;
-        if (isCaptionish && shortish){
-          const k = norm(line);
-          const firstIdx = seenCaptionLike.get(k);
-          if (firstIdx === undefined){
-            seenCaptionLike.set(k, kept.length);
-            kept.push(line); // tentatively keep
-          } else {
-            kept[firstIdx] = null;        // remove earlier
-            removed += 2;                 // count both removals
-            captionsRemoved += 2;
-            continue;                     // drop current (don’t push)
-          }
-          continue;
-        }
-
-        // Pure link-rail bullets: lots of caps, no terminal punctuation, not substantive
-        if (/^[A-Z][^.!?]{12,}$/.test(line) && !keepHint.test(line)){ removed++; continue; }
+        if (!line){ removed++; continue; }
 
         kept.push(line);
       }
 
-      // Remove nulls from duplicate caption pruning
-      const compact = kept.filter(l=>l && l.trim());
+      var out = kept.join('\n\n').replace(/\n\n(?:Disclaimer.*|Disclosure.*)$/i,'').trim();
 
-      // Join paragraphs; trim trailing disclaimer stubs
-      let out = compact.join('\n\n').replace(/\n\n(?:Disclaimer.*|Disclosure.*)$/i, '').trim();
-
-      // Pass back caption stats so UI can show “Graphics detected”
       prunePastedText._lastCaptionCount = captionsRemoved;
-      prunePastedText._foundGraphics = captionsRemoved > 0;
-      return { text: out, removed };
+      prunePastedText._foundGraphics = graphicsFlag;
+      return { text: out, removed: removed };
     }
 
+    /* ---------- NLP helpers ---------- */
     function summarizeSentences(text, k){
       if (!text) return [];
-      const sents = text.match(/[^.!?]+[.!?]/g) || [text];
-      const stop = new Set('a,an,the,and,or,but,if,in,into,on,for,from,of,at,by,to,with,as,is,are,was,were,be,been,being,that,this,these,those,about,than,then,so,it,its,their,his,her,they,them,we,our,you,your,i,me,my,not,no,will,would,can,could,should,over,under,between,within,without,up,down,more,most,very'.split(','));
-      const freq = Object.create(null);
-      sents.forEach(s=>{
-        s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).forEach(w=>{ if (w && !stop.has(w)) freq[w]=(freq[w]||0)+1; });
+      var sents = text.match(/[^.!?]+[.!?]/g) || [text];
+      var stop = new Set('a,an,the,and,or,but,if,in,into,on,for,from,of,at,by,to,with,as,is,are,was,were,be,been,being,that,this,these,those,about,than,then,so,it,its,their,his,her,they,them,we,our,you,your,i,me,my,not,no,will,would,can,could,should,over,under,between,within,without,up,down,more,most,very'.split(','));
+      var freq = Object.create(null);
+      sents.forEach(function(s){
+        s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).forEach(function(w){
+          if (w && !stop.has(w)) freq[w] = (freq[w]||0)+1;
+        });
       });
-      const scored = sents.map((s,idx)=>{
-        const words = s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/);
-        let score = 0; words.forEach(w=>{ if (freq[w]) score += freq[w]; });
+      var scored = sents.map(function(s,idx){
+        var words = s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/);
+        var score = 0;
+        words.forEach(function(w){ if (freq[w]) score += freq[w]; });
         score += Math.max(0, (sents.length - idx)) * 0.01;
-        return { s: s.trim(), score };
+        return { s:s.trim(), score:score };
       });
-      scored.sort((a,b)=>b.score-a.score);
-      return scored.slice(0, k).map(o=>o.s);
+      scored.sort(function(a,b){ return b.score - a.score; });
+      return scored.slice(0,k).map(function(o){ return o.s; });
     }
 
-    function dedupe(arr){ const seen=new Set(); const out=[]; for (const v of arr){ const k=v.toLowerCase(); if (!seen.has(k)){ seen.add(k); out.push(v); } } return out; }
+    function dedupe(arr){
+      var seen = new Set(), out = [];
+      arr.forEach(function(v){
+        var k = String(v).toLowerCase();
+        if (!seen.has(k)){ seen.add(k); out.push(v); }
+      });
+      return out;
+    }
 
     function autoInlineHighlights(container, terms){
       if (!terms || !terms.length) return;
-      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-      const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-      const rx = new RegExp('\\b(' + terms.map(t=>escapeRegex(t)).join('|') + ')\\b','gi');
-      nodes.forEach(n=>{
+      var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+      var nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      var rx = new RegExp('\\b(' + terms.map(escapeRegex).join('|') + ')\\b','gi');
+      nodes.forEach(function(n){
         if (!n.nodeValue || !rx.test(n.nodeValue)) return;
-        const span = document.createElement('span');
+        var span = document.createElement('span');
         span.innerHTML = n.nodeValue.replace(rx, '<span class="hl">$1</span>');
         n.parentNode.replaceChild(span, n);
       });
     }
-    function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-    function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
   </script>
 </body>
 </html>
